@@ -1,0 +1,8 @@
+{
+  "name": "spending-tracker-root",
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix apps/frontend ci && npm --prefix apps/frontend run build",
+    "start": "npm --prefix apps/frontend run start"
+  }
+}
