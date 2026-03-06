@@ -4,6 +4,10 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
+function encodeMessage(message: string) {
+  return encodeURIComponent(message)
+}
+
 export async function login(formData: FormData) {
   const supabase = await createClient()
 
@@ -17,7 +21,11 @@ export async function login(formData: FormData) {
   const { error } = await supabase.auth.signInWithPassword(data)
 
   if (error) {
-    return redirect('/login?error=Could not authenticate user')
+    const message =
+      error.message.toLowerCase().includes('email not confirmed')
+        ? 'Please confirm your email before signing in.'
+        : 'Could not authenticate user'
+    return redirect(`/login?error=${encodeMessage(message)}`)
   }
 
   revalidatePath('/', 'layout')
@@ -32,10 +40,16 @@ export async function signup(formData: FormData) {
     password: formData.get('password') as string,
   }
 
-  const { error } = await supabase.auth.signUp(data)
+  const { data: authData, error } = await supabase.auth.signUp(data)
 
   if (error) {
-    return redirect('/register?error=Could not create user')
+    return redirect(`/register?error=${encodeMessage('Could not create user')}`)
+  }
+
+  if (!authData.session) {
+    return redirect(
+      `/login?message=${encodeMessage('Account created. Please confirm your email before signing in.')}`
+    )
   }
 
   revalidatePath('/', 'layout')
