@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { toast } from 'sonner';
+import { notify, normalizeErrorMessage } from '@/lib/notifications';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -18,17 +18,20 @@ export default function ForgotPasswordPage() {
     e.preventDefault();
     setIsLoading(true);
     const supabase = createClient();
+    const toastId = 'forgot-password';
+    notify.loading({ id: toastId, title: 'Sending password reset email...' });
     
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/callback?next=/reset-password`,
+      redirectTo: `${window.location.origin}/auth/confirm?next=/reset-password`,
     });
 
     setIsLoading(false);
+    notify.dismiss(toastId);
 
     if (error) {
-      toast.error(error.message);
+      notify.error({ title: normalizeErrorMessage(error, 'Could not send reset email.') });
     } else {
-      toast.success('Password reset email sent (if an account exists).');
+      notify.success({ title: 'Password reset email sent.', description: 'Check your inbox for the reset link.' });
     }
   };
 

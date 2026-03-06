@@ -1,4 +1,5 @@
 import { createClient } from '../supabase/client';
+import { normalizeErrorMessage } from '../notifications';
 
 const API_BASE_URL = (process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api/v1').replace(/\/$/, '');
 
@@ -37,17 +38,23 @@ async function fetchWithAuth<T>(endpoint: string, options: RequestInit = {}): Pr
     headers.Authorization = `Bearer ${session.access_token}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...options,
-    headers,
-    credentials: 'include',
-  });
+  let response: Response;
+
+  try {
+    response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      ...options,
+      headers,
+      credentials: 'include',
+    });
+  } catch (error) {
+    throw new Error(normalizeErrorMessage(error, 'Network error. Please try again.'));
+  }
 
   if (!response.ok) {
     if (response.status === 401 || response.status === 403) {
       await supabase.auth.signOut();
       if (typeof window !== 'undefined') {
-        window.location.href = '/login';
+        window.location.href = '/login?error=Your%20session%20expired.%20Please%20sign%20in%20again.';
       }
     }
 

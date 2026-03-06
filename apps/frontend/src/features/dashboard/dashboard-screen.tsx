@@ -7,7 +7,7 @@ import { YearlyView } from '@/features/calendar/YearlyView';
 import { ReportsView } from '@/features/reports/ReportsView';
 import { SettingsView } from '@/features/settings/SettingsView';
 
-export default function DashboardPage() {
+export function DashboardScreen() {
   const { activeView } = useUIStore();
 
   return (

@@ -2,7 +2,7 @@
 
 import { useUIStore } from '@/stores/useUIStore';
 import { format, addYears, subYears } from 'date-fns';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, TriangleAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { useYearlyReport } from '@/lib/api/endpoints';
@@ -11,7 +11,11 @@ export function YearlyView() {
   const { selectedDate, setSelectedDate } = useUIStore();
   const currentYear = selectedDate.getFullYear();
   const months = Array.from({ length: 12 }, (_, i) => new Date(currentYear, i, 1));
-  const report = useYearlyReport(String(currentYear)) as { data?: any };
+  const report = useYearlyReport(String(currentYear)) as {
+    data?: any;
+    isLoading: boolean;
+    isError: boolean;
+  };
 
   const nextYear = () => setSelectedDate(addYears(selectedDate, 1));
   const prevYear = () => setSelectedDate(subYears(selectedDate, 1));
@@ -29,6 +33,20 @@ export function YearlyView() {
           </div>
         </div>
       </div>
+
+      {report.isLoading && (
+        <div className="flex items-center gap-2 rounded-lg border bg-card px-4 py-3 text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          <span>Loading yearly report...</span>
+        </div>
+      )}
+
+      {report.isError && (
+        <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-destructive">
+          <TriangleAlert className="h-4 w-4" />
+          <span>Could not load yearly report.</span>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 flex-1 overflow-auto pb-4">
         {months.map((month) => (

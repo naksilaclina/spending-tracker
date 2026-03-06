@@ -2,14 +2,18 @@
 
 import { useUIStore } from '@/stores/useUIStore';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, startOfWeek, endOfWeek, addMonths, subMonths } from 'date-fns';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, TriangleAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DroppableDayCell } from '@/features/calendar/DroppableDayCell';
 import { useDashboardSummary } from '@/lib/api/endpoints';
 
 export function MonthlyView() {
   const { selectedDate, setSelectedDate } = useUIStore();
-  const summary = useDashboardSummary('monthly', format(selectedDate, 'yyyy-MM-dd')) as { data?: any };
+  const summary = useDashboardSummary('monthly', format(selectedDate, 'yyyy-MM-dd')) as {
+    data?: any;
+    isLoading: boolean;
+    isError: boolean;
+  };
 
   const monthStart = startOfMonth(selectedDate);
   const monthEnd = endOfMonth(selectedDate);
@@ -32,10 +36,24 @@ export function MonthlyView() {
             <Button variant="ghost" size="icon" className="h-7 w-7" onClick={nextMonth}><ChevronRight className="h-4 w-4" /></Button>
           </div>
         </div>
-        <div className="rounded-lg border bg-card px-4 py-2 text-sm">
-          <div>Income: <span className="font-semibold">{summary.data?.total_income ?? '0.00'}</span></div>
-          <div>Expense: <span className="font-semibold">{summary.data?.total_expense ?? '0.00'}</span></div>
-          <div>Net: <span className="font-semibold">{summary.data?.net_result ?? '0.00'}</span></div>
+        <div className="rounded-lg border bg-card px-4 py-2 text-sm min-w-48">
+          {summary.isLoading ? (
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span>Loading summary...</span>
+            </div>
+          ) : summary.isError ? (
+            <div className="flex items-center gap-2 text-destructive">
+              <TriangleAlert className="h-4 w-4" />
+              <span>Could not load summary</span>
+            </div>
+          ) : (
+            <>
+              <div>Income: <span className="font-semibold">{summary.data?.total_income ?? '0.00'}</span></div>
+              <div>Expense: <span className="font-semibold">{summary.data?.total_expense ?? '0.00'}</span></div>
+              <div>Net: <span className="font-semibold">{summary.data?.net_result ?? '0.00'}</span></div>
+            </>
+          )}
         </div>
       </div>
 

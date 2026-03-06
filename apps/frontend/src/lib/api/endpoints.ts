@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient, unwrapList } from './client';
+import { normalizeErrorMessage, notify } from '../notifications';
 
 export function useAuthMe() {
   return useQuery({
@@ -41,10 +42,14 @@ export function useCreateExpense() {
   return useMutation({
     mutationFn: (newExpense: Record<string, unknown>) => apiClient.post<any>('/expenses', newExpense),
     onSuccess: () => {
+      notify.success({ title: 'Expense saved successfully.' });
       queryClient.invalidateQueries({ queryKey: ['expenses'] });
       queryClient.invalidateQueries({ queryKey: ['cashflow'] });
       queryClient.invalidateQueries({ queryKey: ['dashboardSummary'] });
       queryClient.invalidateQueries({ queryKey: ['risk'] });
+    },
+    onError: (error) => {
+      notify.error({ title: normalizeErrorMessage(error, 'Could not save expense.') });
     },
   });
 }
@@ -61,10 +66,14 @@ export function useCreateIncome() {
   return useMutation({
     mutationFn: (newIncome: Record<string, unknown>) => apiClient.post<any>('/incomes', newIncome),
     onSuccess: () => {
+      notify.success({ title: 'Income saved successfully.' });
       queryClient.invalidateQueries({ queryKey: ['incomes'] });
       queryClient.invalidateQueries({ queryKey: ['cashflow'] });
       queryClient.invalidateQueries({ queryKey: ['dashboardSummary'] });
       queryClient.invalidateQueries({ queryKey: ['risk'] });
+    },
+    onError: (error) => {
+      notify.error({ title: normalizeErrorMessage(error, 'Could not save income.') });
     },
   });
 }
@@ -123,11 +132,15 @@ export function useUpdateSettings() {
   return useMutation({
     mutationFn: (payload: Record<string, unknown>) => apiClient.patch<any>('/settings', payload),
     onSuccess: () => {
+      notify.success({ title: 'Settings updated successfully.' });
       queryClient.invalidateQueries({ queryKey: ['settings'] });
       queryClient.invalidateQueries({ queryKey: ['auth-me'] });
       queryClient.invalidateQueries({ queryKey: ['cashflow'] });
       queryClient.invalidateQueries({ queryKey: ['risk'] });
       queryClient.invalidateQueries({ queryKey: ['dashboardSummary'] });
+    },
+    onError: (error) => {
+      notify.error({ title: normalizeErrorMessage(error, 'Could not update settings.') });
     },
   });
 }

@@ -74,7 +74,12 @@ export function LoginForm({ errorMsg, infoMsg }: LoginFormProps) {
               )} />
               <FormField control={form.control} name="password" render={({ field }) => (
                 <FormItem>
-                  <div className="flex items-center justify-between"><FormLabel>Password</FormLabel></div>
+                  <div className="flex items-center justify-between">
+                    <FormLabel>Password</FormLabel>
+                    <Link href="/forgot-password" className="text-xs font-medium text-primary hover:underline">
+                      Forgot password?
+                    </Link>
+                  </div>
                   <FormControl><Input type="password" autoComplete="current-password" disabled={isLoading} {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>

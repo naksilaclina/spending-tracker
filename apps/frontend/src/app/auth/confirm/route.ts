@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const tokenHash = searchParams.get('token_hash');
   const type = searchParams.get('type') as EmailOtpType | null;
-  const next = searchParams.get('next') ?? '/';
+  const next = searchParams.get('next') ?? '/dashboard';
   const redirectTo = request.nextUrl.clone();
 
   redirectTo.pathname = next;
@@ -21,6 +21,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!error) {
+      redirectTo.searchParams.set('success', 'Email confirmed. You can continue.');
       return NextResponse.redirect(redirectTo);
     }
   }

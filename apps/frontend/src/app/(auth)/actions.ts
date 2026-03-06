@@ -24,12 +24,12 @@ export async function login(formData: FormData) {
     const message =
       error.message.toLowerCase().includes('email not confirmed')
         ? 'Please confirm your email before signing in.'
-        : 'Could not authenticate user'
+        : error.message || 'Could not authenticate user'
     return redirect(`/login?error=${encodeMessage(message)}`)
   }
 
-  revalidatePath('/', 'layout')
-  redirect('/')
+  revalidatePath('/dashboard', 'layout')
+  redirect(`/dashboard?success=${encodeMessage('Signed in successfully.')}`)
 }
 
 export async function signup(formData: FormData) {
@@ -43,7 +43,7 @@ export async function signup(formData: FormData) {
   const { data: authData, error } = await supabase.auth.signUp(data)
 
   if (error) {
-    return redirect(`/register?error=${encodeMessage('Could not create user')}`)
+    return redirect(`/register?error=${encodeMessage(error.message || 'Could not create user')}`)
   }
 
   if (!authData.session) {
@@ -52,6 +52,6 @@ export async function signup(formData: FormData) {
     )
   }
 
-  revalidatePath('/', 'layout')
-  redirect('/')
+  revalidatePath('/dashboard', 'layout')
+  redirect(`/dashboard?success=${encodeMessage('Account created successfully.')}`)
 }

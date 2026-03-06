@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { toast } from 'sonner';
 
 import { useAuthMe, useSettings, useUpdateSettings } from '@/lib/api/endpoints';
 import { Button } from '@/components/ui/button';
@@ -40,10 +39,7 @@ export function SettingsView() {
   async function onSave() {
     try {
       await updateSettings.mutateAsync(form);
-      toast.success('Settings updated');
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Could not update settings');
-    }
+    } catch {}
   }
 
   return (

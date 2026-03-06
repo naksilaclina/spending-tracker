@@ -5,15 +5,22 @@ import { cn } from '@/lib/utils';
 import { ScrollArea } from '../ui/scroll-area';
 import { useCashflow, useRisk } from '@/lib/api/endpoints';
 import { format, addDays } from 'date-fns';
-import { Loader2 } from 'lucide-react';
+import { Loader2, TriangleAlert } from 'lucide-react';
 
 export function InsightsPanel() {
   const { isInsightsOpen } = useUIStore();
   const todayStr = format(new Date(), 'yyyy-MM-dd');
   const futureStr = format(addDays(new Date(), 30), 'yyyy-MM-dd');
 
-  const { data: cashflowRes, isLoading } = useCashflow(todayStr, futureStr) as { data?: any; isLoading: boolean };
-  const { data: riskRes } = useRisk(todayStr, futureStr) as { data?: any };
+  const { data: cashflowRes, isLoading, isError: isCashflowError } = useCashflow(todayStr, futureStr) as {
+    data?: any;
+    isLoading: boolean;
+    isError: boolean;
+  };
+  const { data: riskRes, isError: isRiskError } = useRisk(todayStr, futureStr) as {
+    data?: any;
+    isError: boolean;
+  };
 
   const riskStatus = Number(riskRes?.required_extra_funding ?? 0) > 0 ? 'At Risk' : 'Healthy';
   const safeUntil = riskRes?.next_negative_date || 'Projection remains non-negative';
@@ -28,6 +35,11 @@ export function InsightsPanel() {
         <div className="p-4 space-y-6">
           {isLoading ? (
             <div className="flex items-center justify-center p-8 text-muted-foreground"><Loader2 className="h-6 w-6 animate-spin" /></div>
+          ) : isCashflowError || isRiskError ? (
+            <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+              <TriangleAlert className="h-4 w-4" />
+              <span>Could not load live cashflow insights.</span>
+            </div>
           ) : (
             <>
               <div className="rounded-xl border bg-card text-card-foreground shadow-sm p-4">
