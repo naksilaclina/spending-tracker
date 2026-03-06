@@ -3,6 +3,6 @@
   "private": true,
   "scripts": {
     "build": "npm --prefix apps/frontend ci && npm --prefix apps/frontend run build",
-    "start": "node apps/frontend/.next/standalone/server.js"
+    "start": "npm --prefix apps/frontend run start"
   }
 }

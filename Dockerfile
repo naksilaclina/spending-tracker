@@ -8,7 +8,7 @@ WORKDIR /app
 
 COPY apps/backend/pyproject.toml apps/backend/README.md ./
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl && \
+    apt-get install -y --no-install-recommends curl wget && \
     rm -rf /var/lib/apt/lists/* && \
     pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir .
